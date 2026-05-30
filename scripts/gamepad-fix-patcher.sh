@@ -122,19 +122,17 @@ install_utility() {
         # Ensure C:\Games folder exists
         mkdir -p "$games_dir"
         
-        # 1. Copy crossover-gamepad-fixer.exe and GamepadFix.ico to C:\Games\
+        # 1. Copy crossover-gamepad-fixer.exe to C:\Games\
         cp "$tmp_bin" "$games_dir/crossover-gamepad-fixer.exe"
-        if [[ -f "$SCRIPT_DIR/GamepadFix.ico" ]]; then
-            cp "$SCRIPT_DIR/GamepadFix.ico" "$games_dir/GamepadFix.ico"
-        fi
         
         # 2. Copy CreateShortcut.vbs to drive_c/ and run via Wine to build shortcut
         if [[ -f "$SCRIPT_DIR/CreateShortcut.vbs" ]]; then
             cp "$SCRIPT_DIR/CreateShortcut.vbs" "$drive_c/CreateShortcut.vbs"
             echo "Creating Start Menu shortcut pointing to crossover-gamepad-fixer.exe..."
             
+            # Pass the executable itself as the target and the icon source (so CrossOver extracts embedded icon)
             if [[ -x "$CROSSOVER_BIN_DIR/wine" ]]; then
-                "$CROSSOVER_BIN_DIR/wine" --bottle "$bottle" cscript "C:\\CreateShortcut.vbs" "Toggle Gamepad Fix" "C:\\Games\\crossover-gamepad-fixer.exe"
+                "$CROSSOVER_BIN_DIR/wine" --bottle "$bottle" cscript "C:\\CreateShortcut.vbs" "Toggle Gamepad Fix" "C:\\Games\\crossover-gamepad-fixer.exe" "C:\\Games\\crossover-gamepad-fixer.exe"
             else
                 echo -e "${RED}Error: wine command not found. Cannot register shortcut.${RESET}"
             fi
@@ -143,59 +141,8 @@ install_utility() {
 
         # 3. Synchronize menus
         if [[ -x "$CROSSOVER_BIN_DIR/cxmenu" ]]; then
-            echo "Synchronizing CrossOver menus..."
+            echo "Synchronizing CrossOver menus to extract and register embedded icon..."
             "$CROSSOVER_BIN_DIR/cxmenu" --sync --bottle "$bottle"
-        fi
-
-        # 4. Generate multi-resolution PNG icons inside bottle's hicolor folder
-        local png_src="$SCRIPT_DIR/gamepad_fix_icon.png"
-        if [[ -f "$png_src" ]]; then
-            echo "Generating GUI hicolor PNG icons..."
-            local sizes=(16 24 32 48 64 96 128 192 256)
-            for size in "${sizes[@]}"; do
-                local size_dir="$BOTTLES_DIR/$bottle/windata/cxmenu/icons/hicolor/${size}x${size}/apps"
-                mkdir -p "$size_dir"
-                sips -s format png -z "$size" "$size" "$png_src" --out "$size_dir/Toggle_Gamepad_Fix.png" >/dev/null 2>&1
-            done
-        fi
-
-        # 5. Patch cxmenu_macosx.plist using inline Python
-        local plist_path="$BOTTLES_DIR/$bottle/desktopdata/cxmenu/cxmenu_macosx.plist"
-        if [[ -f "$plist_path" ]]; then
-            echo "Patching GUI database plist..."
-            python3 -c "
-import plistlib, os
-plist_path = '$plist_path'
-bottle_path = '$BOTTLES_DIR/$bottle'
-try:
-    with open(plist_path, 'rb') as f:
-        data = plistlib.load(f)
-    updated = False
-    for top_key in data:
-        children = data[top_key].get('Children', {})
-        start_menu = children.get('StartMenu/', {}).get('Children', {})
-        win_apps = start_menu.get('Windows Applications/', {}).get('Children', {})
-        if 'Toggle Gamepad Fix' in win_apps:
-            target_icon = os.path.join(bottle_path, 'windata', 'cxmenu', 'icons', 'hicolor', '256x256', 'apps', 'Toggle_Gamepad_Fix.png')
-            win_apps['Toggle Gamepad Fix']['Icon'] = target_icon
-            win_apps['Toggle Gamepad Fix']['RobustIcon'] = '%WINEPREFIX%/windata/cxmenu/icons/hicolor/256x256/apps/Toggle_Gamepad_Fix.png'
-            updated = True
-    if updated:
-        with open(plist_path, 'wb') as f:
-            plistlib.dump(data, f)
-        print('  Successfully mapped custom icon to CrossOver GUI.')
-except Exception as e:
-    print('  Error patching plist:', e)
-"
-        fi
-
-        # 6. Override helper .app bundle icon
-        local app_path="$HOME/Applications/CrossOver/Toggle Gamepad Fix ($bottle).app"
-        local icns_src="$SCRIPT_DIR/CrossOverHelper.icns"
-        if [[ -d "$app_path" && -f "$icns_src" ]]; then
-            echo "Updating native macOS app launcher icon..."
-            cp "$icns_src" "$app_path/Contents/Resources/CrossOverHelper.icns"
-            touch "$app_path"
         fi
 
         echo -e "${GREEN}Rust GUI Utility successfully installed inside bottle: $bottle${RESET}"
@@ -230,10 +177,9 @@ uninstall_utility() {
             grep -v '"windows.gaming.input"' "$user_reg" > "$user_reg.tmp" && mv "$user_reg.tmp" "$user_reg"
         fi
         
-        # 2. Delete Rust binary and `.ico` files
-        echo "Removing Rust binaries and shortcuts..."
+        # 2. Delete Rust binary
+        echo "Removing Rust binary..."
         rm -f "$drive_c/Games/crossover-gamepad-fixer.exe"
-        rm -f "$drive_c/Games/GamepadFix.ico"
         
         # 3. Delete Start Menu `.lnk` file
         rm -f "$drive_c/users/crossover/AppData/Roaming/Microsoft/Windows/Start Menu/Toggle Gamepad Fix.lnk"
@@ -244,11 +190,7 @@ uninstall_utility() {
             "$CROSSOVER_BIN_DIR/cxmenu" --sync --bottle "$bottle"
         fi
         
-        # 5. Delete generated PNG icons
-        echo "Removing cached PNG icons..."
-        rm -f "$BOTTLES_DIR/$bottle/windata/cxmenu/icons/hicolor/"*/apps/Toggle_Gamepad_Fix.png
-        
-        # 6. Delete native macOS wrapper .app bundle
+        # 5. Delete native macOS wrapper .app bundle
         local app_path="$HOME/Applications/CrossOver/Toggle Gamepad Fix ($bottle).app"
         if [[ -d "$app_path" ]]; then
             echo "Deleting macOS app wrapper bundle..."
