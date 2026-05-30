@@ -125,51 +125,18 @@ install_utility() {
         # 1. Copy crossover-gamepad-fixer.exe to C:\Utilities\
         cp "$tmp_bin" "$utilities_dir/crossover-gamepad-fixer.exe"
         
-        # 2. Write and execute shortcut generator on-the-fly inside the bottle C: drive
+        # 2. Create native shortcut launcher via CrossOver's cxmenu tool
         echo "Creating Start Menu shortcut pointing to crossover-gamepad-fixer.exe..."
         local shortcut_name="Toggle Gamepad Fix ($bottle)"
-        cat << 'EOF' > "$drive_c/CreateShortcut.vbs"
-Set args = WScript.Arguments
-If args.Count < 2 Then
-    WScript.Quit 1
-End If
-Dim shortcutName, targetPath, iconPath
-shortcutName = Replace(args(0), Chr(0), "")
-targetPath = Replace(args(1), Chr(0), "")
-Set Shell = CreateObject("WScript.Shell")
-Set FSO = CreateObject("Scripting.FileSystemObject")
-Dim appData, startMenuPath
-appData = Replace(Shell.ExpandEnvironmentStrings("%APPDATA%"), Chr(0), "")
-startMenuPath = appData & "\Microsoft\Windows\Start Menu\Programs"
-If Not FSO.FolderExists(startMenuPath) Then
-    startMenuPath = appData & "\Microsoft\Windows\Start Menu"
-End If
-Dim lnkPath
-lnkPath = startMenuPath & "\" & shortcutName & ".lnk"
-Set Link = Shell.CreateShortcut(lnkPath)
-Link.TargetPath = targetPath
-Link.WorkingDirectory = Replace(FSO.GetParentFolderName(targetPath), Chr(0), "")
-Link.Description = "Toggle CrossOver Gamepad Fix"
-If args.Count >= 3 Then
-    iconPath = Replace(args(2), Chr(0), "")
-End If
-If iconPath <> "" Then
-    Link.IconLocation = iconPath
-End If
-Link.Save
-EOF
-
-        if [[ -x "$CROSSOVER_BIN_DIR/wine" ]]; then
-            "$CROSSOVER_BIN_DIR/wine" --bottle "$bottle" cscript "C:\\CreateShortcut.vbs" "$shortcut_name" "C:\\Utilities\\crossover-gamepad-fixer.exe" "C:\\Utilities\\crossover-gamepad-fixer.exe,0" >/dev/null 2>&1
-        else
-            echo -e "${RED}Error: wine command not found. Cannot register shortcut.${RESET}"
-        fi
-        rm -f "$drive_c/CreateShortcut.vbs"
-
-        # 3. Synchronize menus
         if [[ -x "$CROSSOVER_BIN_DIR/cxmenu" ]]; then
+            # Create the menu entry
+            "$CROSSOVER_BIN_DIR/cxmenu" --bottle "$bottle" --create "StartMenu/Programs/$shortcut_name" --command "C:\\Utilities\\crossover-gamepad-fixer.exe" --description "Toggle CrossOver Gamepad Fix" --type "windows" >/dev/null 2>&1
+            # Synchronize and install menus to extract icon and register launcher
             echo "Synchronizing CrossOver menus to extract and register embedded icon..."
             "$CROSSOVER_BIN_DIR/cxmenu" --sync --bottle "$bottle"
+            "$CROSSOVER_BIN_DIR/cxmenu" --bottle "$bottle" --install >/dev/null 2>&1
+        else
+            echo -e "${RED}Error: cxmenu command not found. Cannot register shortcut.${RESET}"
         fi
 
         echo -e "${GREEN}Rust GUI Utility successfully installed inside bottle: $bottle${RESET}"
