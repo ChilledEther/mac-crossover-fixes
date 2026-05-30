@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: run-release-please
         id: release
-        uses: googleapis/release-please-action@v4
+        uses: googleapis/release-please-action@v5
         with:
           release-type: rust
           path: crossover-gamepad-fixer
