@@ -45,4 +45,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "v$env:VERSION" crossover-gamepad-fixer/target/release/crossover-gamepad-fixer.exe --title "Release v$env:VERSION" --notes "Automated release of the lightweight Rust utility crossover-gamepad-fixer.exe compiled for Windows." --clobber
+          # Idempotently delete release if it exists to allow re-releasing
+          gh release delete "v$env:VERSION" --yes --cleanup-tag 2>$null
+          gh release create "v$env:VERSION" crossover-gamepad-fixer/target/release/crossover-gamepad-fixer.exe --title "Release v$env:VERSION" --notes "Automated release of the lightweight Rust utility crossover-gamepad-fixer.exe compiled for Windows."
