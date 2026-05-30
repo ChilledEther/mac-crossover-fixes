@@ -10,9 +10,6 @@ permissions:
   contents: write
   pull-requests: write
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
-
 jobs:
   release-please:
     runs-on: ubuntu-latest
@@ -46,7 +43,7 @@ jobs:
           cargo build --release --target x86_64-pc-windows-gnu
 
       - name: upload-artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: crossover-gamepad-fixer
           path: crossover-gamepad-fixer/target/x86_64-pc-windows-gnu/release/crossover-gamepad-fixer.exe
