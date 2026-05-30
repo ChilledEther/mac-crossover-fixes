@@ -79,7 +79,7 @@ show_status() {
         fi
         
         # Check if Rust utility is installed
-        if [[ -f "$BOTTLES_DIR/$bottle/drive_c/Games/crossover-gamepad-fixer.exe" ]]; then
+        if [[ -f "$BOTTLES_DIR/$bottle/drive_c/Utilities/crossover-gamepad-fixer.exe" ]]; then
             local rust_str="${GREEN}[INSTALLED]${RESET}"
         else
             local rust_str="${RED}[NOT INSTALLED]${RESET}"
@@ -117,13 +117,13 @@ install_utility() {
         echo -e "${BOLD}${CYAN}---------------------------------------------------${RESET}"
         
         local drive_c="$BOTTLES_DIR/$bottle/drive_c"
-        local games_dir="$drive_c/Games"
+        local utilities_dir="$drive_c/Utilities"
         
-        # Ensure C:\Games folder exists
-        mkdir -p "$games_dir"
+        # Ensure C:\Utilities folder exists
+        mkdir -p "$utilities_dir"
         
-        # 1. Copy crossover-gamepad-fixer.exe to C:\Games\
-        cp "$tmp_bin" "$games_dir/crossover-gamepad-fixer.exe"
+        # 1. Copy crossover-gamepad-fixer.exe to C:\Utilities\
+        cp "$tmp_bin" "$utilities_dir/crossover-gamepad-fixer.exe"
         
         # 2. Write and execute shortcut generator on-the-fly inside the bottle C: drive
         echo "Creating Start Menu shortcut pointing to crossover-gamepad-fixer.exe..."
@@ -132,9 +132,9 @@ Set args = WScript.Arguments
 If args.Count < 2 Then
     WScript.Quit 1
 End If
-Dim shortcutName, batchPath, iconPath
+Dim shortcutName, targetPath, iconPath
 shortcutName = args(0)
-batchPath = args(1)
+targetPath = args(1)
 Set Shell = CreateObject("WScript.Shell")
 Set FSO = CreateObject("Scripting.FileSystemObject")
 Dim appData, startMenuPath
@@ -146,9 +146,8 @@ End If
 Dim lnkPath
 lnkPath = startMenuPath & "\" & shortcutName & ".lnk"
 Set Link = Shell.CreateShortcut(lnkPath)
-Link.TargetPath = "C:\windows\system32\wineconsole.exe"
-Link.Arguments = batchPath
-Link.WorkingDirectory = FSO.GetParentFolderName(batchPath)
+Link.TargetPath = targetPath
+Link.WorkingDirectory = FSO.GetParentFolderName(targetPath)
 Link.Description = "Toggle CrossOver Gamepad Fix"
 If args.Count >= 3 Then
     iconPath = args(2)
@@ -160,7 +159,7 @@ Link.Save
 EOF
 
         if [[ -x "$CROSSOVER_BIN_DIR/wine" ]]; then
-            "$CROSSOVER_BIN_DIR/wine" --bottle "$bottle" cscript "C:\\CreateShortcut.vbs" "Toggle Gamepad Fix" "C:\\Games\\crossover-gamepad-fixer.exe" "C:\\Games\\crossover-gamepad-fixer.exe" >/dev/null 2>&1
+            "$CROSSOVER_BIN_DIR/wine" --bottle "$bottle" cscript "C:\\CreateShortcut.vbs" "Toggle Gamepad Fix" "C:\\Utilities\\crossover-gamepad-fixer.exe" "C:\\Utilities\\crossover-gamepad-fixer.exe" >/dev/null 2>&1
         else
             echo -e "${RED}Error: wine command not found. Cannot register shortcut.${RESET}"
         fi
@@ -206,6 +205,7 @@ uninstall_utility() {
         
         # 2. Delete Rust binary
         echo "Removing Rust binary..."
+        rm -f "$drive_c/Utilities/crossover-gamepad-fixer.exe"
         rm -f "$drive_c/Games/crossover-gamepad-fixer.exe"
         
         # 3. Delete Start Menu `.lnk` file

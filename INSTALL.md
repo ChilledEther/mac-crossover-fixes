@@ -37,6 +37,6 @@ Revert all DLL registry overrides and remove all files, shortcuts, and macOS app
 ## 📂 Directory Layout
 
 The automated setup performs the following actions inside the bottle:
-* **Binary Location**: `/Users/jarredroberts/Library/Application Support/CrossOver/Bottles/{Bottle}/drive_c/Games/crossover-gamepad-fixer.exe`
+* **Binary Location**: `/Users/jarredroberts/Library/Application Support/CrossOver/Bottles/{Bottle}/drive_c/Utilities/crossover-gamepad-fixer.exe`
 * **Shortcut Location**: `/Users/jarredroberts/Library/Application Support/CrossOver/Bottles/{Bottle}/drive_c/users/crossover/AppData/Roaming/Microsoft/Windows/Start Menu/Toggle Gamepad Fix.lnk`
 * **macOS Wrapper**: `~/Applications/CrossOver/Toggle Gamepad Fix ({Bottle}).app`
