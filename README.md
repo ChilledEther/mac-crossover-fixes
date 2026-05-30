@@ -55,39 +55,21 @@ If you prefer applying the registry patches directly using CrossOver's built-in 
 6. Close the Registry Editor.
 7. Click **Simulate Reboot** in CrossOver to apply the changes.
 
-### Method C: One-Click GUI Launcher inside CrossOver 🖥️
+### Method C: Lightweight Windows Utility (Rust) 🦀
 
-You can create an interactive launcher utility that lives directly on your CrossOver UI (under your program icons) to toggle the fix on/off anytime with a double-click.
+This repository also includes a native Windows command-line utility compiled in Rust (`crossover-gamepad-fixer.exe`) that runs directly inside your Wine bottle. It displays `ENABLED` in bright green if the patch is active and `DISABLED` in bright red if default behavior is active, asking for confirmation before toggling.
 
-#### Step 1: Copy the Toggler Batch File
-Copy the `scripts/ToggleGamepadFix.bat` file to a folder inside your bottle's virtual C: drive (for example, `C:\Games\ToggleGamepadFix.bat`).
-* *Tip: You can access the C: drive by selecting your bottle in CrossOver and clicking **Open C: Drive**.*
+#### Automatic Installation (Recommended)
+You do not need to compile or download this manually. Simply run the native macOS script on your terminal:
+```bash
+./scripts/gamepad-fix-patcher.sh --install [BOTTLE_NAME]
+```
+This automatically downloads the latest compiled binary release from GitHub, places it inside the selected bottle's `C:\Games\crossover-gamepad-fixer.exe` alongside the custom gamepad medical icon, creates the Windows shortcut, synchronizes CrossOver, generates hicolor GUI icons, and patches CrossOver's database to immediately show the beautiful gamepad-with-cross icon on your CrossOver GUI bottle screen.
 
-#### Step 2: Generate a Start Menu Shortcut
-To make CrossOver notice the script, you must create a standard Windows shortcut inside the bottle's Start Menu that targets `wineconsole.exe` wrapping the batch file:
-
-1. Copy the `scripts/CreateShortcut.vbs` file to your bottle's virtual C: drive (e.g. `C:\CreateShortcut.vbs`).
-2. Run a command inside your bottle using CrossOver's **Run Command** tool:
-   ```text
-   cscript.exe "C:\CreateShortcut.vbs" "Toggle Gamepad Fix" "C:\Games\ToggleGamepadFix.bat"
-   ```
-3. Delete the `CreateShortcut.vbs` file from your virtual C: drive once done.
-
-#### Step 3: Synchronize CrossOver Menus
-In CrossOver, click **Simulate Reboot** or restart CrossOver. The new **Toggle Gamepad Fix** application will automatically appear as a double-clickable program icon in your bottle's list. Double-clicking it opens a console showing the current status and toggling it instantly.
-
-### Method D: Lightweight Windows Utility (Rust) 🦀
-
-This repository also includes a native Windows command-line utility compiled in Rust (`crossover-gamepad-fixer.exe`) that runs directly inside your Wine bottle.
-
-* **Color-Coded Status**: Displays `ENABLED` in bright green if the patch is active, and `DISABLED` in bright red if default behavior is active.
-* **Interactive Toggle**: Prompts you to confirm before executing the registry modification.
-* **GitHub Actions Workflow**: Automatically compiled and packaged on every commit.
-
-#### How to Use
-1. Download the compiled `crossover-gamepad-fixer.exe` from the latest GitHub Actions workflow run artifacts or compile it yourself (`cargo build --release`).
-2. Put the executable inside your bottle (e.g. at `C:\Games\crossover-gamepad-fixer.exe`).
-3. Create a Start Menu shortcut for it in CrossOver to launch it with a double-click, or run it using CrossOver's **Run Command** tool.
+#### Manual Installation
+1. Download the compiled `crossover-gamepad-fixer.exe` from the latest GitHub Release.
+2. Put the executable inside your bottle's virtual C: drive (e.g. at `C:\Games\crossover-gamepad-fixer.exe`).
+3. Create a Start Menu shortcut for it in CrossOver pointing to `wineconsole.exe` wrapping the binary, or run it using CrossOver's **Run Command** tool.
 
 ## ⚡ Important Best Practices
 
