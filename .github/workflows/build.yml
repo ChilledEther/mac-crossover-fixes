@@ -9,6 +9,9 @@ permissions:
   contents: write
   pull-requests: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   release-please:
     runs-on: ubuntu-latest
@@ -18,7 +21,7 @@ jobs:
     steps:
       - name: run-release-please
         id: release
-        uses: google-github-actions/release-please-action@v4
+        uses: googleapis/release-please-action@v4
         with:
           release-type: rust
           path: crossover-gamepad-fixer
