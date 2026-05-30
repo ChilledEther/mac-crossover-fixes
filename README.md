@@ -24,16 +24,22 @@ This repository offers three different methods to apply the gamepad fix dependin
 
 ### Method A: Interactive macOS Host Script (Recommended) 🚀
 
-This repository includes a native macOS shell script (`toggle-gamepad-fix.sh`) that runs on your macOS terminal. It automatically scans your system for CrossOver bottles, shows the active status of each bottle, lets you toggle the fix instantly, and triggers a simulated reboot of the bottle to apply changes.
+This repository includes a native macOS shell script (`gamepad-fix-patcher.sh`) that runs on your macOS terminal. It automatically scans your system for CrossOver bottles, shows the active status of each bottle, lets you toggle the fix, installs/uninstalls the Rust utility, and manages simulated reboots.
 
+#### Usage
 1. Clone or download this repository to your Mac.
 2. Open Terminal and navigate to the directory.
 3. Make the script executable and run it:
    ```bash
-   chmod +x scripts/toggle-gamepad-fix.sh
-   ./scripts/toggle-gamepad-fix.sh
+   chmod +x scripts/gamepad-fix-patcher.sh
+   ./scripts/gamepad-fix-patcher.sh [FLAGS]
    ```
-4. Follow the interactive menu to select your bottle and toggle the patch.
+
+#### Supported Flags
+*   `--status`             - Lists the patch and Rust utility installation status for all active bottles.
+*   `--install [BOTTLE]`   - Automatically installs the Rust GUI utility inside the specified bottle (or `all`). If no bottle is specified, it opens an interactive selector.
+*   `--uninstall [BOTTLE]` - Uninstalls the fix and Rust utility, removing all desktop/menu shortcuts and restoring the registry of the specified bottle (or `all`) to defaults.
+*   `-h, --help`           - Shows the help documentation.
 
 ### Method B: Double-Click Registry Files 📄
 
