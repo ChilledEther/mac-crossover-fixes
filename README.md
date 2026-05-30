@@ -41,21 +41,7 @@ This repository includes a native macOS shell script (`gamepad-fix-patcher.sh`) 
 *   `--uninstall [BOTTLE]` - Uninstalls the fix and Rust utility, removing all desktop/menu shortcuts and restoring the registry of the specified bottle (or `all`) to defaults.
 *   `-h, --help`           - Shows the help documentation.
 
-### Method B: Double-Click Registry Files 📄
-
-If you prefer applying the registry patches directly using CrossOver's built-in registry editor:
-
-1. In CrossOver, select the bottle you want to apply the fix to.
-2. In the right panel, click **Run Command**.
-3. Type `regedit` and click **Run**.
-4. In the Registry Editor window, click **Registry** in the top menu -> **Import Registry File...**.
-5. Select one of the `.reg` files from the `registry/` folder in this repository:
-   * `disable-windows-gaming-input.reg`: Enables the gamepad detection fix.
-   * `enable-windows-gaming-input.reg`: Disables the fix (restores default Wine behavior).
-6. Close the Registry Editor.
-7. Click **Simulate Reboot** in CrossOver to apply the changes.
-
-### Method C: Lightweight Windows Utility (Rust) 🦀
+### Method B: Lightweight Windows Utility (Rust) 🦀
 
 This repository also includes a native Windows command-line utility compiled in Rust (`crossover-gamepad-fixer.exe`) that runs directly inside your Wine bottle. It displays `ENABLED` in bright green if the patch is active and `DISABLED` in bright red if default behavior is active, asking for confirmation before toggling.
 
