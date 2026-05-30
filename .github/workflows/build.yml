@@ -24,22 +24,29 @@ jobs:
         id: release
         uses: googleapis/release-please-action@v5
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           release-type: rust
           path: crossover-gamepad-fixer
 
   build-and-release:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: checkout-code
         uses: actions/checkout@v6
 
+      - name: install-mingw-toolchain
+        run: sudo apt-get install -y gcc-mingw-w64-x86-64 binutils-mingw-w64-x86-64
+
+      - name: add-windows-target
+        run: rustup target add x86_64-pc-windows-gnu
+
       - name: build-binary
         run: |
           cd crossover-gamepad-fixer
-          cargo build --release
+          cargo build --release --target x86_64-pc-windows-gnu
 
       - name: upload-artifact
         uses: actions/upload-artifact@v4
         with:
           name: crossover-gamepad-fixer
-          path: crossover-gamepad-fixer/target/release/crossover-gamepad-fixer.exe
+          path: crossover-gamepad-fixer/target/x86_64-pc-windows-gnu/release/crossover-gamepad-fixer.exe
