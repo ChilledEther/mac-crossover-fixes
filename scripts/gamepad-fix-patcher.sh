@@ -99,7 +99,7 @@ install_utility() {
     # Download release binary crossover-gamepad-fixer.exe to /tmp/crossover-gamepad-fixer.exe
     echo
     echo -e "${CYAN}Downloading the latest crossover-gamepad-fixer.exe compiled Rust utility from GitHub Releases...${RESET}"
-    local release_url="https://github.com/ChilledEther/mac-crossover-fixes/releases/download/v1.0.0/crossover-gamepad-fixer.exe"
+    local release_url="https://github.com/ChilledEther/mac-crossover-fixes/releases/download/v1.0.1/crossover-gamepad-fixer.exe"
     local tmp_bin="/tmp/crossover-gamepad-fixer.exe"
     
     if curl -L -o "$tmp_bin" "$release_url"; then
@@ -127,18 +127,19 @@ install_utility() {
         
         # 2. Write and execute shortcut generator on-the-fly inside the bottle C: drive
         echo "Creating Start Menu shortcut pointing to crossover-gamepad-fixer.exe..."
+        local shortcut_name="Toggle Gamepad Fix ($bottle)"
         cat << 'EOF' > "$drive_c/CreateShortcut.vbs"
 Set args = WScript.Arguments
 If args.Count < 2 Then
     WScript.Quit 1
 End If
 Dim shortcutName, targetPath, iconPath
-shortcutName = args(0)
-targetPath = args(1)
+shortcutName = Replace(args(0), Chr(0), "")
+targetPath = Replace(args(1), Chr(0), "")
 Set Shell = CreateObject("WScript.Shell")
 Set FSO = CreateObject("Scripting.FileSystemObject")
 Dim appData, startMenuPath
-appData = Shell.ExpandEnvironmentStrings("%APPDATA%")
+appData = Replace(Shell.ExpandEnvironmentStrings("%APPDATA%"), Chr(0), "")
 startMenuPath = appData & "\Microsoft\Windows\Start Menu\Programs"
 If Not FSO.FolderExists(startMenuPath) Then
     startMenuPath = appData & "\Microsoft\Windows\Start Menu"
@@ -147,10 +148,10 @@ Dim lnkPath
 lnkPath = startMenuPath & "\" & shortcutName & ".lnk"
 Set Link = Shell.CreateShortcut(lnkPath)
 Link.TargetPath = targetPath
-Link.WorkingDirectory = FSO.GetParentFolderName(targetPath)
+Link.WorkingDirectory = Replace(FSO.GetParentFolderName(targetPath), Chr(0), "")
 Link.Description = "Toggle CrossOver Gamepad Fix"
 If args.Count >= 3 Then
-    iconPath = args(2)
+    iconPath = Replace(args(2), Chr(0), "")
 End If
 If iconPath <> "" Then
     Link.IconLocation = iconPath
@@ -159,7 +160,7 @@ Link.Save
 EOF
 
         if [[ -x "$CROSSOVER_BIN_DIR/wine" ]]; then
-            "$CROSSOVER_BIN_DIR/wine" --bottle "$bottle" cscript "C:\\CreateShortcut.vbs" "Toggle Gamepad Fix" "C:\\Utilities\\crossover-gamepad-fixer.exe" "C:\\Utilities\\crossover-gamepad-fixer.exe" >/dev/null 2>&1
+            "$CROSSOVER_BIN_DIR/wine" --bottle "$bottle" cscript "C:\\CreateShortcut.vbs" "$shortcut_name" "C:\\Utilities\\crossover-gamepad-fixer.exe" "C:\\Utilities\\crossover-gamepad-fixer.exe,0" >/dev/null 2>&1
         else
             echo -e "${RED}Error: wine command not found. Cannot register shortcut.${RESET}"
         fi
@@ -208,7 +209,10 @@ uninstall_utility() {
         rm -f "$drive_c/Utilities/crossover-gamepad-fixer.exe"
         rm -f "$drive_c/Games/crossover-gamepad-fixer.exe"
         
-        # 3. Delete Start Menu `.lnk` file
+        # 3. Delete Start Menu `.lnk` files
+        rm -f "$drive_c/users/crossover/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Toggle Gamepad Fix ($bottle).lnk"
+        rm -f "$drive_c/users/crossover/AppData/Roaming/Microsoft/Windows/Start Menu/Toggle Gamepad Fix ($bottle).lnk"
+        rm -f "$drive_c/users/crossover/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Toggle Gamepad Fix.lnk"
         rm -f "$drive_c/users/crossover/AppData/Roaming/Microsoft/Windows/Start Menu/Toggle Gamepad Fix.lnk"
         
         # 4. Synchronize menus to drop launcher
@@ -217,11 +221,16 @@ uninstall_utility() {
             "$CROSSOVER_BIN_DIR/cxmenu" --sync --bottle "$bottle"
         fi
         
-        # 5. Delete native macOS wrapper .app bundle
+        # 5. Delete native macOS wrapper .app bundles
         local app_path="$HOME/Applications/CrossOver/Toggle Gamepad Fix ($bottle).app"
         if [[ -d "$app_path" ]]; then
             echo "Deleting macOS app wrapper bundle..."
             rm -rf "$app_path"
+        fi
+        local generic_app_path="$HOME/Applications/CrossOver/Toggle Gamepad Fix.app"
+        if [[ -d "$generic_app_path" ]]; then
+            echo "Deleting generic macOS app wrapper bundle..."
+            rm -rf "$generic_app_path"
         fi
         
         echo -e "${GREEN}Successfully uninstalled and cleaned bottle: $bottle${RESET}"

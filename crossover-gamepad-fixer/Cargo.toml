@@ -1,6 +1,6 @@
 [package]
 name = "crossover-gamepad-fixer"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 description = "Lightweight Rust binary to toggle the gamepad fix in Wine/CrossOver registry"
 
