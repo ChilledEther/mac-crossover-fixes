@@ -8,6 +8,9 @@ Many modern Windows games built on the Unity engine use the modern **Unity Input
 
 This patcher blocks the incomplete `windows.gaming.input` DLL in the Wine registry, forcing the Unity engine to bypass it and fall back to mature **XInput** and **DirectInput** standards, which map macOS gamepad inputs flawlessly via SDL.
 
+> [!NOTE]
+> **Tested Hardware & Verification**: This fix was verified using an **8BitDo Pro 3** controller. The initial symptom was a complete lack of gamepad detection inside the Unity game (only mouse and keyboard options were active). After applying this patcher and disabling the `windows.gaming.input` DLL override, the controller was immediately detected and fully usable.
+
 ## 🛠️ How to Install & Use
 
 This repository offers two ways to use the patcher depending on your workflow.
