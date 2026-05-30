@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
@@ -29,3 +32,17 @@ jobs:
         with:
           name: crossover-gamepad-fixer
           path: crossover-gamepad-fixer/target/release/crossover-gamepad-fixer.exe
+
+      - name: get-version
+        shell: pwsh
+        run: |
+          $version = (Get-Content crossover-gamepad-fixer/Cargo.toml | Select-String "version =").Line.Split('"')[1]
+          echo "VERSION=$version" >> $env:GITHUB_ENV
+
+      - name: create-release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "v$env:VERSION" crossover-gamepad-fixer/target/release/crossover-gamepad-fixer.exe --title "Release v$env:VERSION" --notes "Automated release of the lightweight Rust utility crossover-gamepad-fixer.exe compiled for Windows." --clobber
