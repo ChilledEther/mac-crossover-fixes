@@ -125,21 +125,8 @@ install_utility() {
         # 1. Copy crossover-gamepad-fixer.exe to C:\Utilities\
         cp "$tmp_bin" "$utilities_dir/crossover-gamepad-fixer.exe"
         
-        # 2. Create native shortcut launcher via CrossOver's cxmenu tool
-        echo "Creating Start Menu shortcut pointing to crossover-gamepad-fixer.exe..."
-        local shortcut_name="Toggle Gamepad Fix ($bottle)"
-        if [[ -x "$CROSSOVER_BIN_DIR/cxmenu" ]]; then
-            # Create the menu entry
-            "$CROSSOVER_BIN_DIR/cxmenu" --bottle "$bottle" --create "StartMenu/Programs/$shortcut_name" --command "C:\\Utilities\\crossover-gamepad-fixer.exe" --description "Toggle CrossOver Gamepad Fix" --type "windows" >/dev/null 2>&1
-            # Synchronize and install menus to extract icon and register launcher
-            echo "Synchronizing CrossOver menus to extract and register embedded icon..."
-            "$CROSSOVER_BIN_DIR/cxmenu" --sync --bottle "$bottle"
-            "$CROSSOVER_BIN_DIR/cxmenu" --bottle "$bottle" --install >/dev/null 2>&1
-        else
-            echo -e "${RED}Error: cxmenu command not found. Cannot register shortcut.${RESET}"
-        fi
-
         echo -e "${GREEN}Rust GUI Utility successfully installed inside bottle: $bottle${RESET}"
+        echo -e "Ready to register. In CrossOver GUI, open the bottle, click 'Run Command', browse to 'C:\\Utilities\\crossover-gamepad-fixer.exe', and click 'Save Command as a Launcher'."
     done
 
     # Clean up downloaded tmp binary
@@ -149,7 +136,6 @@ install_utility() {
     echo -e "${BOLD}${GREEN}===================================================${RESET}"
     echo -e "${BOLD}${GREEN}   RUST GUI UTILITY INSTALLATION PROCESS COMPLETE  ${RESET}"
     echo -e "${BOLD}${GREEN}===================================================${RESET}"
-    echo -e "\nPlease quit (Cmd + Q) and relaunch **CrossOver** to refresh the program icons."
 }
 
 # Function to perform uninstallation
