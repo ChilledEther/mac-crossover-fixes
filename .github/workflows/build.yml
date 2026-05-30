@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -27,8 +28,6 @@ jobs:
           path: crossover-gamepad-fixer
 
   build-and-release:
-    needs: release-please
-    if: ${{ needs.release-please.outputs.release_created }}
     runs-on: windows-latest
     steps:
       - name: checkout-code
@@ -45,9 +44,8 @@ jobs:
           cd crossover-gamepad-fixer
           cargo build --release
 
-      - name: upload-release-asset
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release upload "${{ needs.release-please.outputs.tag_name }}" crossover-gamepad-fixer/target/release/crossover-gamepad-fixer.exe
+      - name: upload-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: crossover-gamepad-fixer
+          path: crossover-gamepad-fixer/target/release/crossover-gamepad-fixer.exe
