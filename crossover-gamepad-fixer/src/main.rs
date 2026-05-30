@@ -8,7 +8,7 @@ fn main() {
     println!("\x1b[1m\x1b[36m===================================================\x1b[0m");
     println!();
 
-    let hkcu = RegKey::predefined(HKEY_CURRENT_USER);
+    let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let path = "Software\\Wine\\DllOverrides";
 
     // Open or create the subkey
