@@ -2,15 +2,30 @@ name: build-rust-binary
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
-  build:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - name: run-release-please
+        id: release
+        uses: google-github-actions/release-please-action@v4
+        with:
+          release-type: rust
+          path: crossover-gamepad-fixer
+
+  build-and-release:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
     runs-on: windows-latest
     steps:
       - name: checkout-code
@@ -27,24 +42,9 @@ jobs:
           cd crossover-gamepad-fixer
           cargo build --release
 
-      - name: upload-artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: crossover-gamepad-fixer
-          path: crossover-gamepad-fixer/target/release/crossover-gamepad-fixer.exe
-
-      - name: get-version
-        shell: pwsh
-        run: |
-          $version = (Get-Content crossover-gamepad-fixer/Cargo.toml | Select-String "version =").Line.Split('"')[1]
-          echo "VERSION=$version" >> $env:GITHUB_ENV
-
-      - name: create-release
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      - name: upload-release-asset
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Idempotently delete release if it exists to allow re-releasing
-          gh release delete "v$env:VERSION" --yes --cleanup-tag 2>$null
-          gh release create "v$env:VERSION" crossover-gamepad-fixer/target/release/crossover-gamepad-fixer.exe --title "Release v$env:VERSION" --notes "Automated release of the lightweight Rust utility crossover-gamepad-fixer.exe compiled for Windows."
+          gh release upload "${{ needs.release-please.outputs.tag_name }}" crossover-gamepad-fixer/target/release/crossover-gamepad-fixer.exe
