@@ -125,19 +125,46 @@ install_utility() {
         # 1. Copy crossover-gamepad-fixer.exe to C:\Games\
         cp "$tmp_bin" "$games_dir/crossover-gamepad-fixer.exe"
         
-        # 2. Copy CreateShortcut.vbs to drive_c/ and run via Wine to build shortcut
-        if [[ -f "$SCRIPT_DIR/CreateShortcut.vbs" ]]; then
-            cp "$SCRIPT_DIR/CreateShortcut.vbs" "$drive_c/CreateShortcut.vbs"
-            echo "Creating Start Menu shortcut pointing to crossover-gamepad-fixer.exe..."
-            
-            # Pass the executable itself as the target and the icon source (so CrossOver extracts embedded icon)
-            if [[ -x "$CROSSOVER_BIN_DIR/wine" ]]; then
-                "$CROSSOVER_BIN_DIR/wine" --bottle "$bottle" cscript "C:\\CreateShortcut.vbs" "Toggle Gamepad Fix" "C:\\Games\\crossover-gamepad-fixer.exe" "C:\\Games\\crossover-gamepad-fixer.exe"
-            else
-                echo -e "${RED}Error: wine command not found. Cannot register shortcut.${RESET}"
-            fi
-            rm -f "$drive_c/CreateShortcut.vbs"
+        # 2. Write and execute shortcut generator on-the-fly inside the bottle C: drive
+        echo "Creating Start Menu shortcut pointing to crossover-gamepad-fixer.exe..."
+        cat << 'EOF' > "$drive_c/CreateShortcut.vbs"
+Set args = WScript.Arguments
+If args.Count < 2 Then
+    WScript.Quit 1
+End If
+Dim shortcutName, batchPath, iconPath
+shortcutName = args(0)
+batchPath = args(1)
+Set Shell = CreateObject("WScript.Shell")
+Set FSO = CreateObject("Scripting.FileSystemObject")
+Dim appData, startMenuPath
+appData = Shell.ExpandEnvironmentStrings("%APPDATA%")
+startMenuPath = appData & "\Microsoft\Windows\Start Menu\Programs"
+If Not FSO.FolderExists(startMenuPath) Then
+    startMenuPath = appData & "\Microsoft\Windows\Start Menu"
+End If
+Dim lnkPath
+lnkPath = startMenuPath & "\" & shortcutName & ".lnk"
+Set Link = Shell.CreateShortcut(lnkPath)
+Link.TargetPath = "C:\windows\system32\wineconsole.exe"
+Link.Arguments = batchPath
+Link.WorkingDirectory = FSO.GetParentFolderName(batchPath)
+Link.Description = "Toggle CrossOver Gamepad Fix"
+If args.Count >= 3 Then
+    iconPath = args(2)
+End If
+If iconPath <> "" Then
+    Link.IconLocation = iconPath
+End If
+Link.Save
+EOF
+
+        if [[ -x "$CROSSOVER_BIN_DIR/wine" ]]; then
+            "$CROSSOVER_BIN_DIR/wine" --bottle "$bottle" cscript "C:\\CreateShortcut.vbs" "Toggle Gamepad Fix" "C:\\Games\\crossover-gamepad-fixer.exe" "C:\\Games\\crossover-gamepad-fixer.exe" >/dev/null 2>&1
+        else
+            echo -e "${RED}Error: wine command not found. Cannot register shortcut.${RESET}"
         fi
+        rm -f "$drive_c/CreateShortcut.vbs"
 
         # 3. Synchronize menus
         if [[ -x "$CROSSOVER_BIN_DIR/cxmenu" ]]; then
