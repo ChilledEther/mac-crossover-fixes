@@ -1,0 +1,31 @@
+name: build-rust-binary
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: checkout-code
+        uses: actions/checkout@v4
+
+      - name: rust-setup
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          target: x86_64-pc-windows-msvc
+
+      - name: build-binary
+        run: |
+          cd crossover-gamepad-fixer
+          cargo build --release
+
+      - name: upload-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: crossover-gamepad-fixer
+          path: crossover-gamepad-fixer/target/release/crossover-gamepad-fixer.exe
