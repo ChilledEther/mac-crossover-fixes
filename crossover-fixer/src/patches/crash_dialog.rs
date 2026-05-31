@@ -1,3 +1,17 @@
+/// Suppress Wine Crash Dialogs Patch
+/// 
+/// PROBLEM:
+/// When Windows applications or games crash, freeze, or exit abnormally in a Wine bottle,
+/// the built-in Wine debugger (`winedbg.exe`) launches an interactive crash dialog box.
+/// Under macOS/CrossOver, this dialog prevents the crashed game processes from terminating
+/// cleanly, hangs background services, and displays annoying, non-actionable dialog popups
+/// on the screen.
+/// 
+/// FIX:
+/// This patch sets `ShowCrashDialog` to `0` (disabled) under the registry key
+/// `HKCU\Software\Wine\WineDbg`. This completely suppresses the interactive crash popups,
+/// allowing crashed or hanging games to immediately terminate and exit cleanly back to CrossOver.
+
 use winreg::enums::*;
 use winreg::RegKey;
 use std::io;

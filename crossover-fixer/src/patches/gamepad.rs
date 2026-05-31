@@ -1,3 +1,17 @@
+/// Unity Gamepad Support Patch
+/// 
+/// PROBLEM:
+/// Modern Windows games built on the Unity engine use the modern Unity Input System,
+/// which queries the `Windows.Gaming.Input` API. Because Wine (powering CrossOver)
+/// exposes an incomplete stub implementation of this API on macOS, Unity's input
+/// engine fails to enumerate and detect any connected gamepads.
+/// 
+/// FIX:
+/// This patch blocks the incomplete `windows.gaming.input` DLL in the Wine registry
+/// by setting a DLL override value of `""` (disabled). This forces the Unity engine
+/// to bypass it and fall back to mature, well-supported `XInput` and `DirectInput`
+/// standards, which map macOS gamepad inputs perfectly via SDL.
+
 use winreg::enums::*;
 use winreg::RegKey;
 use std::io;

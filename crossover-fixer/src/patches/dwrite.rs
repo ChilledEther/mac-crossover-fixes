@@ -1,3 +1,17 @@
+/// DirectWrite Blank Text Compatibility Patch
+/// 
+/// PROBLEM:
+/// DirectWrite (`dwrite.dll`) is the hardware-accelerated font rendering API in Windows.
+/// WebKit/Chromium-based game storefronts and game launchers (such as Steam, EA Desktop,
+/// Ubisoft Connect, or Epic Games Launcher) running inside Wine/CrossOver frequently suffer
+/// from blank, missing, or invisible text. This is because Wine's hardware-accelerated
+/// DirectWrite font path fails to coordinate with modern Chromium sandbox render layers.
+/// 
+/// FIX:
+/// This patch blocks `dwrite.dll` inside the Wine DLL overrides registry by setting its
+/// value to `""` (disabled). This forces Steam and other Chromium-based launchers to fall
+/// back to standard GDI font rasterization, which renders text perfectly and clearly.
+
 use winreg::enums::*;
 use winreg::RegKey;
 use std::io;
