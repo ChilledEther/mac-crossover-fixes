@@ -1,3 +1,7 @@
+/// Trait representing a modular compatibility patch inside a Wine/CrossOver bottle.
+/// 
+/// Implementing this trait registers a patch within the dynamic list, automatically
+/// rendering it in the GUI checklist and enabling host-side CLI management.
 pub trait Patch {
     fn id(&self) -> &'static str;
     fn name(&self) -> &'static str;
