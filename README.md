@@ -31,7 +31,7 @@ chmod +x scripts/gamepad-fix-patcher.sh
 
 ### Method B: Double-Clickable Control Panel inside CrossOver 🖥️
 
-You can install a lightweight, modular Windows control panel utility compiled in Rust (`crossover-gamepad-fixer.exe`) that runs directly inside your CrossOver GUI as a program icon named **CrossOver Fixer**. It gives you a sleek graphical checklist to toggle patches on and off directly on the screen.
+You can install a lightweight, modular Windows control panel utility compiled in Rust (`crossover-fixer.exe`) that runs directly inside your CrossOver GUI as a program icon named **CrossOver Fixer**. It gives you a sleek graphical checklist to toggle patches on and off directly on the screen.
 
 To automatically install this control panel in a bottle with a single command (which sets up the binary, registers the shortcut, and syncs the program icon in the CrossOver screen):
 

@@ -1,10 +1,11 @@
 #![windows_subsystem = "windows"]
 
-mod patch;
+mod patches;
 
 use std::ffi::OsStr;
 use std::os::windows::ffi::OsStrExt;
-use patch::{get_all_patches, Patch};
+use patches::{get_all_patches, Patch};
+
 
 // Win32 Constants
 const WS_OVERLAPPEDWINDOW: u32 = 0x00CF0000;

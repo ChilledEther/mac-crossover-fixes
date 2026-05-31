@@ -77,7 +77,7 @@ show_status() {
         fi
         
         # Check if Rust utility is installed
-        if [[ -f "$BOTTLES_DIR/$bottle/drive_c/Utilities/crossover-gamepad-fixer.exe" ]]; then
+        if [[ -f "$BOTTLES_DIR/$bottle/drive_c/Utilities/crossover-fixer.exe" || -f "$BOTTLES_DIR/$bottle/drive_c/Utilities/crossover-gamepad-fixer.exe" ]]; then
             local rust_str="${GREEN}[INSTALLED]${RESET}"
         else
             local rust_str="${RED}[NOT INSTALLED]${RESET}"
@@ -96,11 +96,11 @@ show_status() {
 install_utility() {
     local selected_bottles=("$@")
     
-    # Download release binary crossover-gamepad-fixer.exe to /tmp/crossover-gamepad-fixer.exe
+    # Download release binary crossover-fixer.exe to /tmp/crossover-fixer.exe
     echo
-    echo -e "${CYAN}Downloading the latest crossover-gamepad-fixer.exe compiled Rust utility from GitHub Releases...${RESET}"
-    local release_url="https://github.com/ChilledEther/mac-crossover-fixes/releases/download/v1.0.2/crossover-gamepad-fixer.exe"
-    local tmp_bin="/tmp/crossover-gamepad-fixer.exe"
+    echo -e "${CYAN}Downloading the latest crossover-fixer.exe compiled Rust utility from GitHub Releases...${RESET}"
+    local release_url="https://github.com/ChilledEther/mac-crossover-fixes/releases/download/v1.0.2/crossover-fixer.exe"
+    local tmp_bin="/tmp/crossover-fixer.exe"
     
     if curl -L -o "$tmp_bin" "$release_url"; then
         echo -e "${GREEN}Download successful.${RESET}"
@@ -122,8 +122,8 @@ install_utility() {
         # Ensure C:\Utilities folder exists
         mkdir -p "$utilities_dir"
         
-        # 1. Copy crossover-gamepad-fixer.exe to C:\Utilities\
-        cp "$tmp_bin" "$utilities_dir/crossover-gamepad-fixer.exe"
+        # 1. Copy crossover-fixer.exe to C:\Utilities\
+        cp "$tmp_bin" "$utilities_dir/crossover-fixer.exe"
         
         # 2. Write and execute shortcut generator on-the-fly inside the bottle C: drive
         echo "Creating Start Menu shortcut pointing to CrossOver Fixer..."
@@ -160,7 +160,7 @@ Link.Save
 EOF
 
         if [[ -x "$CROSSOVER_BIN_DIR/wine" ]]; then
-            "$CROSSOVER_BIN_DIR/wine" --bottle "$bottle" cscript "C:\\CreateShortcut.vbs" "$shortcut_name" "C:\\Utilities\\crossover-gamepad-fixer.exe" "C:\\Utilities\\crossover-gamepad-fixer.exe,0" >/dev/null 2>&1
+            "$CROSSOVER_BIN_DIR/wine" --bottle "$bottle" cscript "C:\\CreateShortcut.vbs" "$shortcut_name" "C:\\Utilities\\crossover-fixer.exe" "C:\\Utilities\\crossover-fixer.exe,0" >/dev/null 2>&1
         else
             echo -e "${RED}Error: wine command not found. Cannot register shortcut.${RESET}"
         fi
@@ -210,7 +210,9 @@ uninstall_utility() {
         # 2. Delete Rust binary
         echo "Removing Rust binary..."
         rm -f "$drive_c/Utilities/crossover-gamepad-fixer.exe"
+        rm -f "$drive_c/Utilities/crossover-fixer.exe"
         rm -f "$drive_c/Games/crossover-gamepad-fixer.exe"
+        rm -f "$drive_c/Games/crossover-fixer.exe"
         
         # 3. Delete Start Menu `.lnk` files
         rm -f "$drive_c/users/crossover/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Gamepad Fixer.lnk"

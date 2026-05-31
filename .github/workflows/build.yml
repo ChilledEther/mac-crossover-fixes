@@ -23,7 +23,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: rust
-          path: crossover-gamepad-fixer
+          path: crossover-fixer
 
   build-and-release:
     runs-on: ubuntu-latest
@@ -39,11 +39,12 @@ jobs:
 
       - name: build-binary
         run: |
-          cd crossover-gamepad-fixer
+          cd crossover-fixer
           cargo build --release --target x86_64-pc-windows-gnu
 
       - name: upload-artifact
         uses: actions/upload-artifact@v7
         with:
-          name: crossover-gamepad-fixer
-          path: crossover-gamepad-fixer/target/x86_64-pc-windows-gnu/release/crossover-gamepad-fixer.exe
+          name: crossover-fixer
+          path: crossover-fixer/target/x86_64-pc-windows-gnu/release/crossover-fixer.exe
+
