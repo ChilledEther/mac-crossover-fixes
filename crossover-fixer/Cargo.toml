@@ -1,6 +1,6 @@
 [package]
 name = "crossover-fixer"
-version = "1.0.2"
+version = "1.1.0"
 edition = "2021"
 description = "Lightweight modular Rust utility to toggle gaming and compatibility patches inside CrossOver bottles"
 
