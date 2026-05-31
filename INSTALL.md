@@ -1,19 +1,19 @@
-# 🤖 Agentic Installation Guide (crossover-gamepad-fixer)
+# 🤖 Agentic Installation Guide (macOS CrossOver Fixer)
 
 This guide provides automated instructions for AI agents executing in this repository.
 
 ## 🛠️ Automated Setup
 
-To query status, install, or uninstall the gamepad patcher programmatically:
+To query status, install, or uninstall the CrossOver Fixer programmatically:
 
 ### 1. Show Status
-Query the status of the registry patch and the Rust GUI utility across all active bottles:
+Query the status of all compatibility patches and the Rust GUI control panel across all active bottles:
 ```bash
 ./scripts/gamepad-fix-patcher.sh --status
 ```
 
-### 2. Install Rust GUI Utility
-Automatically download the compiled `crossover-gamepad-fixer.exe` from GitHub, set up the directory structures, create the Windows Start Menu `.lnk` shortcut (which automatically extracts the embedded gamepad icon), and synchronize menus:
+### 2. Install Rust GUI Control Panel
+Automatically download the compiled `crossover-gamepad-fixer.exe` from GitHub, set up the directory structures, create the Windows Start Menu `.lnk` shortcut (which automatically extracts the embedded icon), and synchronize menus:
 * **All Bottles**:
   ```bash
   ./scripts/gamepad-fix-patcher.sh --install all
@@ -24,7 +24,7 @@ Automatically download the compiled `crossover-gamepad-fixer.exe` from GitHub, s
   ```
 
 ### 3. Uninstall and Restore Bottle
-Revert all DLL registry overrides and remove all files, shortcuts, and macOS app bundles completely:
+Revert all DLL and registry overrides and remove all files, shortcuts, and macOS app bundles completely:
 * **All Bottles**:
   ```bash
   ./scripts/gamepad-fix-patcher.sh --uninstall all
@@ -38,5 +38,6 @@ Revert all DLL registry overrides and remove all files, shortcuts, and macOS app
 
 The automated setup performs the following actions inside the bottle:
 * **Binary Location**: `/Users/jarredroberts/Library/Application Support/CrossOver/Bottles/{Bottle}/drive_c/Utilities/crossover-gamepad-fixer.exe`
-* **Shortcut Location**: `/Users/jarredroberts/Library/Application Support/CrossOver/Bottles/{Bottle}/drive_c/users/crossover/AppData/Roaming/Microsoft/Windows/Start Menu/Toggle Gamepad Fix.lnk`
-* **macOS Wrapper**: `~/Applications/CrossOver/Toggle Gamepad Fix ({Bottle}).app`
+* **Shortcut Location**: `/Users/jarredroberts/Library/Application Support/CrossOver/Bottles/{Bottle}/drive_c/users/crossover/AppData/Roaming/Microsoft/Windows/Start Menu/CrossOver Fixer.lnk`
+* **macOS Wrapper**: `~/Applications/CrossOver/CrossOver Fixer.app`
+
